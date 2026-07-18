@@ -1,4 +1,4 @@
-FROM richarvey/nginx-php-fpm:latest
+FROM richarvey/nginx-php-fpm:php8.3
 
 # Set working directory
 WORKDIR /var/www/html
@@ -14,7 +14,7 @@ ENV LOG_CHANNEL=stderr
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Install dependencies and optimize
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+RUN composer install --no-dev --optimize-autoloader
 
 # Set proper permissions for Laravel storage
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
