@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: twostryve-app
+    env: docker
+    plan: free
+    region: singapore # You can change this to your preferred region (e.g. ohio, frankfurt)
+    healthCheckPath: /
+    # A persistent disk is required if you are using SQLite, 
+    # since Render's Docker environment is ephemeral and resets on each deploy.
+    # Note: Persistent disks are not available on the free tier.
+    # If you use MySQL/PostgreSQL, you can remove this disk section.
+    disk:
+      name: database-storage
+      mountPath: /var/www/html/database
+      sizeGB: 1
+    envVars:
+      - key: APP_NAME
+        value: TwoStryve
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        value: https://twostryve-app.onrender.com # Update this after deploy
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: LOG_CHANNEL
+        value: stderr
