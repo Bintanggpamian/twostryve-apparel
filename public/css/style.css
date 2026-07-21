@@ -165,11 +165,19 @@ input, textarea, select {
 /* Logo */
 .header-logo {
   font-family: 'Raleway', sans-serif;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: 3px;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 4px;
   color: #1f2021;
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+}
+
+.header-logo img {
+  max-height: 64px;
+  height: auto;
+  object-fit: contain;
 }
 
 .header-logo span {

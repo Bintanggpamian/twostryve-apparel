@@ -246,28 +246,55 @@
           </div>
         </div>
 
-        <div class="admin-card">
-          <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;letter-spacing:1px;margin-bottom:16px;text-transform:uppercase">Pesanan Terbaru</h3>
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Invoice</th><th>Tanggal</th><th>Pelanggan</th><th>Total</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse($orders->take(5) as $order)
-              <tr>
-                <td style="font-weight:700">{{ $order->invoice }}</td>
-                <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                <td>{{ $order->customer_name }} ({{ $order->customer_phone }})</td>
-                <td style="font-weight:700">{{ FormatHelper::price($order->total) }}</td>
-                <td><span class="status-badge" style="background:#0f172a;color:#fff">{{ strtoupper($order->status) }}</span></td>
-              </tr>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; align-items: start;">
+          <div class="admin-card" style="margin-bottom:0">
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;letter-spacing:1px;margin-bottom:16px;text-transform:uppercase">Pesanan Terbaru</h3>
+            <div style="overflow-x:auto">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Invoice</th><th>Tanggal</th><th>Pelanggan</th><th>Total</th><th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @forelse($orders->take(5) as $order)
+                  <tr>
+                    <td style="font-weight:700">{{ $order->invoice }}</td>
+                    <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                    <td>{{ $order->customer_name }}</td>
+                    <td style="font-weight:700">{{ FormatHelper::price($order->total) }}</td>
+                    <td><span class="status-badge" style="background:#0f172a;color:#fff">{{ strtoupper($order->status) }}</span></td>
+                  </tr>
+                  @empty
+                  <tr><td colspan="5" style="text-align:center">Belum ada pesanan.</td></tr>
+                  @endforelse
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="admin-card" style="margin-bottom:0">
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;letter-spacing:1px;margin-bottom:16px;text-transform:uppercase">Log Aktifitas</h3>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              @forelse($activityLogs ?? [] as $log)
+                <div style="display:flex;gap:12px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;">
+                  <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:{{ $log->type === 'order' ? '#f0fdf4' : '#eff6ff' }};color:{{ $log->type === 'order' ? '#166534' : '#1e40af' }}">
+                    @if($log->type === 'order')
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    @else
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
+                    @endif
+                  </div>
+                  <div>
+                    <div style="font-size:13px;font-weight:600;color:#0f172a;line-height:1.4">{{ $log->description }}</div>
+                    <div style="font-size:11px;color:#64748b;margin-top:2px">{{ $log->created_at->diffForHumans() }}</div>
+                  </div>
+                </div>
               @empty
-              <tr><td colspan="5" style="text-align:center">Belum ada pesanan.</td></tr>
+                <div style="text-align:center;font-size:13px;color:#64748b;padding:20px 0;">Belum ada log aktifitas.</div>
               @endforelse
-            </tbody>
-          </table>
+            </div>
+          </div>
         </div>
       </div>
 

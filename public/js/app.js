@@ -62,7 +62,7 @@ const searchOverlay = document.getElementById('searchOverlay');
 const searchInput = document.getElementById('searchInput');
 if (searchBtn && searchOverlay) {
     searchBtn.addEventListener('click', () => {
-        searchOverlay.classList.add('active');
+        searchOverlay.classList.add('open');
         setTimeout(() => searchInput?.focus(), 300);
     });
     searchOverlay.addEventListener('click', (e) => {
@@ -70,7 +70,7 @@ if (searchBtn && searchOverlay) {
     });
 }
 function closeSearch() {
-    searchOverlay?.classList.remove('active');
+    searchOverlay?.classList.remove('open');
 }
 
 let searchDebounce = null;
@@ -80,19 +80,51 @@ if (searchInput) {
         searchDebounce = setTimeout(async () => {
             const q = searchInput.value.trim();
             const results = document.getElementById('searchResults');
-            if (!q) { results.innerHTML = '<div class="search-hint">Ketik untuk mencari produk...</div>'; return; }
+            if (!q) { results.innerHTML = '<div class="search-hint">Ketik untuk mencari produk, artikel, atau kategori...</div>'; return; }
             try {
                 const res = await fetch('/api/search?q=' + encodeURIComponent(q));
                 const data = await res.json();
-                if (data.length === 0) {
+                
+                const hasProducts = data.products && data.products.length > 0;
+                const hasArticles = data.articles && data.articles.length > 0;
+                const hasCategories = data.categories && data.categories.length > 0;
+
+                if (!hasProducts && !hasArticles && !hasCategories) {
                     results.innerHTML = '<div class="search-hint">Tidak ada hasil untuk "' + q + '"</div>';
                 } else {
-                    results.innerHTML = data.map(p => `
-                        <a href="/product/${p.slug}" class="search-result-item">
-                            <img src="/${p.image}" alt="${p.name}" style="width:48px;height:48px;object-fit:cover;border-radius:6px">
-                            <div><div style="font-weight:600">${p.name}</div><div style="font-size:12px;color:#888">Rp ${p.price.toLocaleString('id-ID')}</div></div>
-                        </a>
-                    `).join('');
+                    let html = '';
+                    
+                    if (hasProducts) {
+                        html += '<div style="padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;background:#f8fafc;letter-spacing:1px">Produk</div>';
+                        html += data.products.map(p => `
+                            <a href="/product/${p.slug}" class="search-result-item">
+                                <img src="/${p.image}" alt="${p.name}" style="width:48px;height:48px;object-fit:cover;border-radius:6px">
+                                <div><div style="font-weight:600">${p.name}</div><div style="font-size:12px;color:#888">Rp ${p.price.toLocaleString('id-ID')}</div></div>
+                            </a>
+                        `).join('');
+                    }
+
+                    if (hasCategories) {
+                        html += '<div style="padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;background:#f8fafc;letter-spacing:1px">Kategori</div>';
+                        html += data.categories.map(c => `
+                            <a href="/shop?cat=${c.slug}" class="search-result-item">
+                                ${c.image ? `<img src="${c.image}" alt="${c.name}" style="width:48px;height:48px;object-fit:cover;border-radius:6px">` : `<div style="width:48px;height:48px;background:#f1f5f9;border-radius:6px;display:flex;align-items:center;justify-content:center"><svg style="width:20px;height:20px;color:#94a3b8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>`}
+                                <div><div style="font-weight:600">${c.name}</div><div style="font-size:12px;color:#888">${c.desc}</div></div>
+                            </a>
+                        `).join('');
+                    }
+
+                    if (hasArticles) {
+                        html += '<div style="padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;background:#f8fafc;letter-spacing:1px">Artikel & Blog</div>';
+                        html += data.articles.map(a => `
+                            <a href="/article/${a.slug}" class="search-result-item">
+                                ${a.image ? `<img src="${a.image}" alt="${a.name}" style="width:48px;height:48px;object-fit:cover;border-radius:6px">` : `<div style="width:48px;height:48px;background:#f1f5f9;border-radius:6px;display:flex;align-items:center;justify-content:center"><svg style="width:20px;height:20px;color:#94a3b8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>`}
+                                <div style="min-width:0;flex:1"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.name}</div><div style="font-size:12px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.desc || 'Baca selengkapnya...'}</div></div>
+                            </a>
+                        `).join('');
+                    }
+
+                    results.innerHTML = html;
                 }
             } catch (e) {
                 results.innerHTML = '<div class="search-hint">Gagal mencari. Coba lagi.</div>';

@@ -73,6 +73,11 @@ class CheckoutController extends Controller
 
         session()->forget('cart');
 
+        \App\Models\ActivityLog::create([
+            'type' => 'order',
+            'description' => "Pesanan baru #{$order->invoice} dari {$order->customer_name}"
+        ]);
+
         return redirect()->route('order.success', ['invoice' => $order->invoice]);
     }
 }

@@ -41,7 +41,7 @@
             </button>
             <a href="{{ route('home') }}" class="header-logo">
                 @if(!empty($storeSettings['site_logo']))
-                    <img src="{{ asset($storeSettings['site_logo']) }}" alt="{{ $storeSettings['site_name'] ?? 'TWOSTRYVE' }}" style="max-height:56px;height:auto;object-fit:contain">
+                    <img src="{{ asset($storeSettings['site_logo']) }}" alt="{{ $storeSettings['site_name'] ?? 'TWOSTRYVE' }}" style="max-height:64px;height:auto;object-fit:contain">
                 @else
                     {!! $storeSettings['site_logo_html'] ?? 'TWO<span>STRYVE</span>' !!}
                 @endif
@@ -189,7 +189,7 @@
     }
     </script>
 
-    <script src="{{ asset('js/app.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}?v={{ filemtime(public_path('js/app.js')) }}"></script>
     @stack('scripts')
 </body>
 </html>

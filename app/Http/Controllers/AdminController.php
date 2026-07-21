@@ -30,9 +30,10 @@ class AdminController extends Controller
         $articles = Article::orderBy('published_at', 'desc')->get();
         $pages = Page::all();
         $settings = Setting::pluck('value', 'key')->toArray();
+        $activityLogs = \App\Models\ActivityLog::orderBy('created_at', 'desc')->take(15)->get();
 
         return view('admin.index', compact(
-            'stats', 'orders', 'products', 'categories', 'banners', 'articles', 'pages', 'settings'
+            'stats', 'orders', 'products', 'categories', 'banners', 'articles', 'pages', 'settings', 'activityLogs'
         ));
     }
 
@@ -103,12 +104,14 @@ class AdminController extends Controller
         }
 
         $message = $request->id ? 'Produk berhasil diperbarui!' : 'Produk berhasil ditambahkan!';
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => $message]);
         return $this->redirectTab($request, 'products', $message);
     }
 
     public function deleteProduct(Request $request, $id)
     {
         Product::findOrFail($id)->delete();
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => 'Produk berhasil dihapus!']);
         return $this->redirectTab($request, 'products', 'Produk berhasil dihapus!');
     }
 
@@ -136,12 +139,14 @@ class AdminController extends Controller
         );
 
         $message = $request->id ? 'Kategori berhasil diperbarui!' : 'Kategori berhasil ditambahkan!';
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => $message]);
         return $this->redirectTab($request, 'categories', $message);
     }
 
     public function deleteCategory(Request $request, $id)
     {
         Category::findOrFail($id)->delete();
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => 'Kategori berhasil dihapus!']);
         return $this->redirectTab($request, 'categories', 'Kategori berhasil dihapus!');
     }
 
@@ -169,12 +174,14 @@ class AdminController extends Controller
         );
 
         $message = $request->id ? 'Hero Banner berhasil diperbarui!' : 'Hero Banner berhasil ditambahkan!';
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => $message]);
         return $this->redirectTab($request, 'banners', $message);
     }
 
     public function deleteBanner(Request $request, $id)
     {
         Banner::findOrFail($id)->delete();
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => 'Hero Banner berhasil dihapus!']);
         return $this->redirectTab($request, 'banners', 'Hero Banner berhasil dihapus!');
     }
 
@@ -212,12 +219,14 @@ class AdminController extends Controller
         );
 
         $message = $request->id ? 'Artikel berhasil diperbarui!' : 'Artikel berhasil diterbitkan!';
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => $message]);
         return $this->redirectTab($request, 'articles', $message);
     }
 
     public function deleteArticle(Request $request, $id)
     {
         Article::findOrFail($id)->delete();
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => 'Artikel berhasil dihapus!']);
         return $this->redirectTab($request, 'articles', 'Artikel berhasil dihapus!');
     }
 
@@ -235,7 +244,10 @@ class AdminController extends Controller
             $validated
         );
 
-        return $this->redirectTab($request, 'pages', 'Halaman ' . strtoupper($validated['slug']) . ' berhasil diperbarui!');
+        $message = 'Halaman ' . strtoupper($validated['slug']) . ' berhasil diperbarui!';
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => $message]);
+
+        return $this->redirectTab($request, 'pages', $message);
     }
 
     public function updateOrderStatus(Request $request, $id)
@@ -244,7 +256,10 @@ class AdminController extends Controller
         $order->status = $request->status;
         $order->save();
 
-        return $this->redirectTab($request, 'orders', 'Status pesanan ' . $order->invoice . ' diperbarui ke ' . strtoupper($request->status));
+        $message = 'Status pesanan ' . $order->invoice . ' diperbarui ke ' . strtoupper($request->status);
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => $message]);
+
+        return $this->redirectTab($request, 'orders', $message);
     }
 
     public function updateSettings(Request $request)
@@ -273,6 +288,8 @@ class AdminController extends Controller
         } elseif ($request->has('promo_banner_title') || $request->hasFile('promo_banner_file')) {
             $defaultTab = 'promobanner';
         }
+
+        \App\Models\ActivityLog::create(['type' => 'cms', 'description' => 'Pengaturan sistem berhasil diperbarui']);
 
         return $this->redirectTab($request, $defaultTab, 'Pengaturan berhasil diperbarui!');
     }
