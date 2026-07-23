@@ -22,7 +22,7 @@
     </div>
 
     <div class="product-detail-grid">
-        <div class="gallery">
+        <div class="gallery reveal-left">
             <div class="gallery-main" onclick="openLightbox(this.querySelector('img').src)">
                 <img src="{{ asset($product->first_image) }}" alt="{{ $product->name }}" id="galleryMainImg">
             </div>
@@ -35,7 +35,7 @@
             </div>
         </div>
 
-        <div class="product-info">
+        <div class="product-info reveal-right">
             <h1 class="product-name">{{ $product->name }}</h1>
 
             <div class="product-price-section">
@@ -50,49 +50,41 @@
 
             <p class="product-desc">{{ $product->description }}</p>
 
-            <form action="{{ route('cart.add') }}" method="POST" id="addToCartForm">
-                @csrf
-                <input type="hidden" name="product_id" value="{{ $product->id }}">
-
+            <div class="product-purchase-area" style="margin-top: 24px;">
                 @if(count($colors) > 0)
                 <div class="variant-section">
-                    <div class="variant-label">Warna: <span id="selectedColorName">{{ $defaultColor }}</span></div>
-                    <div class="color-swatches">
+                    <div class="variant-label">Warna Tersedia: </div>
+                    <div class="color-swatches" style="pointer-events: none;">
                         @foreach($colors as $i => $c)
-                        <button type="button" class="color-swatch {{ $i === 0 ? 'active' : '' }}" style="background:{{ $c['hex'] }}" data-color="{{ $c['name'] }}" title="{{ $c['name'] }}" onclick="selectColor(this)"></button>
+                        <div class="color-swatch {{ $i === 0 ? 'active' : '' }}" style="background:{{ $c['hex'] }}" title="{{ $c['name'] }}"></div>
                         @endforeach
                     </div>
-                    <input type="hidden" name="color" id="colorInput" value="{{ $defaultColor }}">
                 </div>
                 @endif
 
                 <div class="variant-section">
-                    <div class="variant-label">Ukuran: <span id="selectedSizeName">{{ $defaultSize }}</span></div>
-                    <div class="size-options" id="sizeOptions">
+                    <div class="variant-label">Ukuran Tersedia:</div>
+                    <div class="size-options" style="pointer-events: none;">
                         @foreach($sizes as $i => $s)
-                            @php
-                                $variant = $variants->first(fn($v) => $v->color_name === $defaultColor && $v->size === $s);
-                                $stock = $variant ? $variant->stock : 0;
-                            @endphp
-                            <button type="button" class="size-option {{ $i === 0 ? 'active' : '' }} {{ $stock === 0 ? 'disabled' : '' }}" data-size="{{ $s }}" data-stock="{{ $stock }}" onclick="selectSize(this)" {{ $stock === 0 ? 'disabled' : '' }}>{{ $s }}</button>
+                            <div class="size-option active">{{ $s }}</div>
                         @endforeach
                     </div>
-                    <input type="hidden" name="size" id="sizeInput" value="{{ $defaultSize }}">
-                    <div class="stock-info" id="stockInfo"></div>
                 </div>
 
-                <div class="product-actions">
-                    <div class="qty-selector">
-                        <button type="button" onclick="changeQty(-1)">−</button>
-                        <input type="number" id="productQty" name="qty" value="1" min="1" max="99" readonly>
-                        <button type="button" onclick="changeQty(1)">+</button>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-lg" style="flex:1" id="addToCartBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                        Tambah ke Keranjang
-                    </button>
+                <div class="product-actions" style="margin-top: 32px;">
+                    @if(!empty($storeSettings['shopee_url']))
+                    <a href="{{ $storeSettings['shopee_url'] }}" target="_blank" class="btn btn-lg" style="flex:1; background: #ee4d2d; color: #fff; border: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:24px;height:24px"><path d="M19 6h-3c0-2.21-1.79-4-4-4S8 3.79 8 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm0 10c-2.21 0-4-1.79-4-4h2c0 1.1.9 2 2 2s2-.9 2-2h2c0 2.21-1.79 4-4 4z"/></svg>
+                        Lanjut Order di Shopee
+                    </a>
+                    @else
+                    <a href="#" class="btn btn-lg" style="flex:1; background: #ee4d2d; color: #fff; border: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:24px;height:24px"><path d="M19 6h-3c0-2.21-1.79-4-4-4S8 3.79 8 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm0 10c-2.21 0-4-1.79-4-4h2c0 1.1.9 2 2 2s2-.9 2-2h2c0 2.21-1.79 4-4 4z"/></svg>
+                        Lanjut Order di Shopee
+                    </a>
+                    @endif
                 </div>
-            </form>
+            </div>
 
             <div class="accordion" style="margin-top:var(--space-8)">
                 <div class="accordion-item">

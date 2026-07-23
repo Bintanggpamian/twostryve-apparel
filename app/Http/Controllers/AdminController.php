@@ -93,14 +93,38 @@ class AdminController extends Controller
             $product->images()->create(['path' => 'assets/images/product-1.png', 'sort_order' => 1]);
         }
 
-        if (!$product->variants()->exists()) {
-            $product->variants()->create([
-                'color_name' => 'Default',
-                'color_hex' => '#1a1a1a',
-                'size' => 'M',
-                'stock' => 10,
-                'sku' => strtoupper(Str::random(8)),
-            ]);
+        // Sync Variants
+        $variantIds = $request->input('variant_ids', []);
+        $colorNames = $request->input('variant_color_names', []);
+        $colorHexes = $request->input('variant_color_hexes', []);
+        $sizes = $request->input('variant_sizes', []);
+        $stocks = $request->input('variant_stocks', []);
+        
+        $keptVariantIds = [];
+        if (is_array($colorNames)) {
+            foreach ($colorNames as $index => $colorName) {
+                if (empty($colorName) || empty($sizes[$index])) continue;
+                
+                $varId = !empty($variantIds[$index]) ? $variantIds[$index] : null;
+                $variant = $product->variants()->updateOrCreate(
+                    ['id' => $varId],
+                    [
+                        'color_name' => $colorName,
+                        'color_hex' => $colorHexes[$index] ?? '#000000',
+                        'size' => $sizes[$index],
+                        'stock' => (int)($stocks[$index] ?? 0),
+                        'sku' => strtoupper(\Illuminate\Support\Str::random(8)),
+                    ]
+                );
+                $keptVariantIds[] = $variant->id;
+            }
+        }
+        
+        // Delete removed variants
+        if (count($keptVariantIds) > 0) {
+            $product->variants()->whereNotIn('id', $keptVariantIds)->delete();
+        } else {
+            $product->variants()->delete();
         }
 
         $message = $request->id ? 'Produk berhasil diperbarui!' : 'Produk berhasil ditambahkan!';
@@ -154,11 +178,11 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'id' => 'nullable|integer|exists:banners,id',
-            'title' => 'required|string|max:255',
-            'tag' => 'required|string',
-            'cta' => 'required|string',
-            'link' => 'required|string',
-            'description' => 'required|string',
+            'title' => 'nullable|string|max:255',
+            'tag' => 'nullable|string',
+            'cta' => 'nullable|string',
+            'link' => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
 
         $banner = Banner::find($request->id);

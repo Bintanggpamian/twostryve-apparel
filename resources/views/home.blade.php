@@ -10,17 +10,34 @@
     <div class="hero-slides" id="heroSlides">
         @foreach($banners as $banner)
         <div class="hero-slide">
-            <img src="{{ asset($banner->image) }}" alt="{{ $banner->title }}">
+            @if(!empty($banner->link) && empty($banner->cta))
+                <a href="{{ $banner->link }}" style="display:block; width:100%; height:100%;">
+                    <img src="{{ asset($banner->image) }}" alt="{{ $banner->title ?: 'Hero Banner' }}">
+                </a>
+            @else
+                <img src="{{ asset($banner->image) }}" alt="{{ $banner->title ?: 'Hero Banner' }}">
+            @endif
+
+            @if(!empty($banner->title) || !empty($banner->tag) || !empty($banner->description) || !empty($banner->cta))
             <div class="hero-slide-overlay">
                 <div class="hero-content">
-                    <span class="hero-tag">{{ $banner->tag }}</span>
-                    <h1 class="hero-title">{{ $banner->title }}</h1>
-                    <p class="hero-desc">{{ $banner->description }}</p>
-                    <div class="hero-cta">
-                        <a href="{{ $banner->link }}" class="btn btn-primary btn-lg">{{ $banner->cta }}</a>
-                    </div>
+                    @if(!empty($banner->tag))
+                        <span class="hero-tag">{{ $banner->tag }}</span>
+                    @endif
+                    @if(!empty($banner->title))
+                        <h1 class="hero-title">{{ $banner->title }}</h1>
+                    @endif
+                    @if(!empty($banner->description))
+                        <p class="hero-desc">{{ $banner->description }}</p>
+                    @endif
+                    @if(!empty($banner->cta))
+                        <div class="hero-cta">
+                            <a href="{{ $banner->link ?: '/shop' }}" class="btn btn-primary btn-lg">{{ $banner->cta }}</a>
+                        </div>
+                    @endif
                 </div>
             </div>
+            @endif
         </div>
         @endforeach
     </div>
@@ -35,14 +52,14 @@
 @endif
 
 {{-- Categories --}}
-@if($categories->count() > 0)
+@if($categories->count() > 0 && ($storeSettings['show_section_categories'] ?? '1') !== '0')
 <section class="section">
-    <div class="container">
-        <div class="section-header reveal">
+    <div class="container-fluid">
+        <div class="section-header reveal-left">
             <h2 class="section-title">Kategori</h2>
             <a href="{{ route('shop') }}" class="section-link">Lihat Semua <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="m9 18 6-6-6-6"/></svg></a>
         </div>
-        <div class="grid-4 reveal">
+        <div class="grid-4 stagger-children">
             @foreach($categories->take(4) as $cat)
             <a href="{{ route('shop', ['cat' => $cat->slug]) }}" class="category-card">
                 <img src="{{ asset($cat->image) }}" alt="{{ $cat->name }}" loading="lazy">
@@ -60,14 +77,14 @@
 @endif
 
 {{-- New Arrivals --}}
-@if($newProducts->count() > 0)
+@if($newProducts->count() > 0 && ($storeSettings['show_section_new_arrivals'] ?? '1') !== '0')
 <section class="section" style="background:#f9f9f9">
-    <div class="container">
-        <div class="section-header reveal">
+    <div class="container-fluid">
+        <div class="section-header reveal-left">
             <h2 class="section-title">New Arrivals</h2>
             <a href="{{ route('shop', ['sort' => 'newest']) }}" class="section-link">Lihat Semua <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="m9 18 6-6-6-6"/></svg></a>
         </div>
-        <div class="grid-4 reveal">
+        <div class="grid-4 stagger-children">
             @foreach($newProducts->take(4) as $product)
                 @include('partials.product-card', ['product' => $product])
             @endforeach
@@ -79,7 +96,7 @@
 {{-- Promo Banner --}}
 @if(($storeSettings['show_promo_banner'] ?? '1') !== '0')
 <section class="section-sm">
-    <div class="container reveal">
+    <div class="container reveal-zoom">
         <div class="promo-banner">
             <img src="{{ asset($storeSettings['promo_banner_image'] ?? 'assets/images/promo-mid.png') }}" alt="Promo Banner" loading="lazy">
             <div class="promo-banner-overlay">
@@ -95,14 +112,14 @@
 @endif
 
 {{-- Sale Products --}}
-@if($saleProducts->count() > 0)
+@if($saleProducts->count() > 0 && ($storeSettings['show_section_sale'] ?? '1') !== '0')
 <section class="section">
-    <div class="container">
-        <div class="section-header reveal">
+    <div class="container-fluid">
+        <div class="section-header reveal-left">
             <h2 class="section-title">🔥 Sale</h2>
             <a href="{{ route('shop', ['sale' => 'true']) }}" class="section-link">Lihat Semua <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="m9 18 6-6-6-6"/></svg></a>
         </div>
-        <div class="grid-4 reveal">
+        <div class="grid-4 stagger-children">
             @foreach($saleProducts->take(4) as $product)
                 @include('partials.product-card', ['product' => $product])
             @endforeach
@@ -112,14 +129,14 @@
 @endif
 
 {{-- Best Sellers --}}
-@if($featuredProducts->count() > 0)
+@if($featuredProducts->count() > 0 && ($storeSettings['show_section_best_sellers'] ?? '1') !== '0')
 <section class="section" style="background:#f9f9f9">
-    <div class="container">
-        <div class="section-header reveal">
+    <div class="container-fluid">
+        <div class="section-header reveal-left">
             <h2 class="section-title">Best Sellers</h2>
             <a href="{{ route('shop', ['sort' => 'popular']) }}" class="section-link">Lihat Semua <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="m9 18 6-6-6-6"/></svg></a>
         </div>
-        <div class="grid-4 reveal">
+        <div class="grid-4 stagger-children">
             @foreach($featuredProducts as $product)
                 @include('partials.product-card', ['product' => $product])
             @endforeach
@@ -129,16 +146,16 @@
 @endif
 
 {{-- Magazine --}}
-@if($articles->count() > 0)
-<section class="section">
+@if($articles->count() > 0 && ($storeSettings['show_section_magazine'] ?? '1') !== '0')
+<section class="section magazine-slider-section">
     <div class="container">
         <div class="section-header reveal">
-            <h2 class="section-title">Magazine</h2>
-            <a href="{{ route('blog') }}" class="section-link">Lihat Semua <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="m9 18 6-6-6-6"/></svg></a>
+            <h2 class="section-title" style="color: #fff;">LATEST ARTICLES</h2>
+            <a href="{{ route('blog') }}" class="section-link" style="color: #fff; border-bottom-color: #fff;">Lihat Semua <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="m9 18 6-6-6-6"/></svg></a>
         </div>
-        <div class="grid-3 reveal">
+        <div class="magazine-slider reveal">
             @foreach($articles as $article)
-                @include('partials.article-card', ['article' => $article])
+                @include('partials.article-card-horizontal', ['article' => $article])
             @endforeach
         </div>
     </div>
@@ -146,6 +163,7 @@
 @endif
 
 {{-- Newsletter --}}
+@if(($storeSettings['show_section_newsletter'] ?? '1') !== '0')
 <section class="section-sm">
     <div class="container reveal">
         <div class="newsletter">
@@ -158,6 +176,8 @@
         </div>
     </div>
 </section>
+@endif
+
 
 {{-- E-Commerce Platforms Section --}}
 @include('partials.ecommerce-section')

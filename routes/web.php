@@ -50,9 +50,16 @@ Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
-// Admin Panel (Custom Full CMS)
-Route::prefix('admin')->group(function () {
-    Route::get('/', [\App\Http\Controllers\AdminController::class, 'index'])->name('admin.index')->name('admin');
+use App\Http\Controllers\AuthController;
+
+// Admin Auth Routes (Public)
+Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AuthController::class, 'login'])->name('admin.login.submit');
+Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
+
+// Admin Panel (Protected Full CMS)
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\AdminController::class, 'index'])->name('admin.index');
     
     // Products CRUD
     Route::post('/products', [\App\Http\Controllers\AdminController::class, 'storeProduct'])->name('admin.products.store');

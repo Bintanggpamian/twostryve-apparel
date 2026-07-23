@@ -17,7 +17,11 @@
 
     <title>@yield('title', 'TWOSTRYVE — Streetwear Culture Redefined')</title>
 
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+    @if(!empty($storeSettings['site_logo']))
+        <link rel="icon" href="{{ asset($storeSettings['site_logo']) }}">
+    @else
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+    @endif
 
     {{-- Original CSS from the static site --}}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -29,6 +33,9 @@
     @stack('styles')
 </head>
 <body>
+    {{-- Scroll Progress Bar --}}
+    <div class="scroll-progress-bar" id="scrollProgress"></div>
+
     {{-- Announcement Bar --}}
     @php $freeShippingMin = $storeSettings['free_shipping_min'] ?? 500000; @endphp
     <div class="announcement-bar">{!! $storeSettings['announcement_text'] ?? ('🔥 FREE ONGKIR untuk pembelian di atas ' . App\Helpers\FormatHelper::price($freeShippingMin) . ' — <a href="' . route('shop') . '" style="text-decoration:underline">Shop Now</a>') !!}</div>
@@ -67,7 +74,7 @@
                 <button class="header-action-btn" id="searchBtn" aria-label="Cari produk">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 </button>
-                <a href="{{ route('cart') }}" class="header-action-btn" aria-label="Keranjang">
+                <a href="javascript:void(0)" onclick="document.getElementById('cartDisabledModal').classList.add('active')" class="header-action-btn" aria-label="Keranjang">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                     <span class="cart-badge {{ collect(session('cart', []))->sum('qty') > 0 ? 'show' : '' }}" id="cartBadge">{{ collect(session('cart', []))->sum('qty') }}</span>
                 </a>
@@ -171,6 +178,27 @@
 
     {{-- Platform Store Modal --}}
     @include('partials.platform-modal')
+
+    {{-- Cart Disabled Modal --}}
+    <div class="platform-modal-overlay" id="cartDisabledModal" onclick="if(event.target === this) this.classList.remove('active')">
+        <div class="platform-modal" style="text-align: center;">
+            <button class="platform-modal-close" onclick="document.getElementById('cartDisabledModal').classList.remove('active')" aria-label="Close">&times;</button>
+            <div class="platform-modal-header" style="margin-bottom: 24px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ee4d2d" stroke-width="2" style="width:48px;height:48px;margin:0 auto 16px;"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                <h3 class="platform-modal-title">Kami available di Shopee only dulu</h3>
+                <p class="platform-modal-subtitle">Mohon maaf, saat ini proses pemesanan hanya dapat dilakukan melalui official store Shopee kami.</p>
+            </div>
+            <div class="platform-links-list" style="display:flex; flex-direction:column; gap:12px;">
+                <a href="{{ $storeSettings['shopee_url'] ?? '#' }}" target="_blank" onclick="document.getElementById('cartDisabledModal').classList.remove('active')" class="platform-link-btn" style="background: #ee4d2d; color: #fff; border: none; justify-content: center; font-weight: 700; padding: 14px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;margin-right:8px"><path d="M19 6h-3c0-2.21-1.79-4-4-4S8 3.79 8 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm0 10c-2.21 0-4-1.79-4-4h2c0 1.1.9 2 2 2s2-.9 2-2h2c0 2.21-1.79 4-4 4z"/></svg>
+                    Pergi ke Shopee
+                </a>
+                <button onclick="document.getElementById('cartDisabledModal').classList.remove('active')" class="platform-link-btn" style="background: transparent; border: 1px solid #1e293b; color: #0f172a !important; justify-content: center; font-weight: 700; padding: 14px; cursor: pointer;">
+                    Lanjut lihat website
+                </button>
+            </div>
+        </div>
+    </div>
 
     {{-- Schema.org --}}
     <script type="application/ld+json">

@@ -1,57 +1,45 @@
-FROM php:8.4-apache
+FROM php:8.3-apache
 
-# Install dependencies
+# Install System Dependencies & PHP Extensions required by Laravel & Image Cropper
 RUN apt-get update && apt-get install -y \
     libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    libpq-dev \
     unzip \
     git \
     curl \
-    libsqlite3-dev
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql pdo_pgsql zip bcmath
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install extensions
-RUN docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip
-
-# Enable Apache mod_rewrite
+# Enable Apache Mod Rewrite
 RUN a2enmod rewrite
 
-# Update Apache document root to point to Laravel's public directory
+# Point Apache DocumentRoot to Laravel /public directory
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Set working directory
+# Set Working Directory
 WORKDIR /var/www/html
 
-# Install Composer
+# Copy Application Source Code
+COPY . /var/www/html
+
+# Install Composer Dependencies
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Copy application code
-COPY . /var/www/html/
+# Set Permissions for Storage & Cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Create .env from .env.example to prevent artisan from crashing during composer install
-RUN cp .env.example .env
-
-# Install composer dependencies
-ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
-
-# Generate APP_KEY
-RUN php artisan key:generate
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
-
-# Create SQLite database file if it doesn't exist
-RUN touch /var/www/html/database/database.sqlite \
-    && chown www-data:www-data /var/www/html/database/database.sqlite \
-    && chmod 664 /var/www/html/database/database.sqlite
-
+# Expose Port 80
 EXPOSE 80
+
+# Execute Entrypoint Script
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

@@ -8,33 +8,51 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" />
   <style>
     :root {
-      --admin-sidebar-bg: #111213;
-      --admin-sidebar-hover: #1c1d1f;
-      --admin-accent: #111213;
-      --admin-border: #e2e8f0;
-      --admin-text-main: #0f172a;
-      --admin-text-muted: #64748b;
+      --bg-dark: #0c121e;
+      --sidebar-bg: #111827;
+      --card-bg-start: #172133;
+      --card-bg-end: #111826;
+      --accent-orange: #ee4d2d;
+      --accent-orange-hover: #ff5738;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-dark: rgba(255, 255, 255, 0.07);
     }
-    body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--admin-text-main); }
+
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(238, 77, 45, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(30, 41, 59, 0.4) 0px, transparent 50%);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      margin: 0;
+    }
     .admin-layout { display: flex; min-height: 100vh; }
     
-    /* Sleek Sidebar */
+    /* Executive Skeuomorphic Sidebar */
     .admin-sidebar {
       width: 270px;
-      background: var(--admin-sidebar-bg);
+      background: linear-gradient(180deg, #111827 0%, #0d131f 100%);
       color: #fff;
       display: flex;
       flex-direction: column;
       position: fixed;
       top: 0; bottom: 0; left: 0;
       z-index: 100;
-      border-right: 1px solid rgba(255,255,255,0.08);
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4);
     }
     .admin-brand {
-      padding: 24px 28px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 24px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(0, 0, 0, 0.2);
     }
     .admin-brand-title {
       font-family: 'Space Grotesk', sans-serif;
@@ -43,61 +61,76 @@
       letter-spacing: 2px;
       color: #fff;
     }
-    .admin-brand-title span { color: #888; }
+    .admin-brand-title span { color: var(--accent-orange); }
     .admin-brand-sub {
       font-size: 10px;
       letter-spacing: 1px;
-      color: #64748b;
+      color: var(--text-muted);
       margin-top: 4px;
       text-transform: uppercase;
       font-weight: 600;
     }
-    .admin-nav { padding: 20px 0; flex: 1; overflow-y: auto; }
+
+    .admin-nav { padding: 16px 12px; flex: 1; overflow-y: auto; }
     .admin-nav-group-title {
-      padding: 12px 28px 6px;
+      padding: 14px 16px 6px;
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      color: #475569;
+      color: #64748b;
     }
     .admin-nav-item {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 12px 28px;
+      gap: 12px;
+      padding: 12px 16px;
       color: #94a3b8;
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 600;
       text-decoration: none;
       transition: all 0.2s ease;
       cursor: pointer;
-      border: none;
+      border: 1px solid transparent;
+      border-radius: 12px;
       background: transparent;
       width: 100%;
       text-align: left;
+      margin-bottom: 4px;
     }
-    .admin-nav-item:hover { color: #fff; background: var(--admin-sidebar-hover); }
+    .admin-nav-item:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.05);
+      transform: translateX(3px);
+    }
     .admin-nav-item.active {
       color: #fff;
-      background: var(--admin-sidebar-hover);
-      border-left: 3px solid #fff;
-      font-weight: 600;
+      background: linear-gradient(145deg, #1e293b, #111827);
+      border: 1px solid rgba(238, 77, 45, 0.35);
+      box-shadow: 
+        inset 2px 2px 4px #090e17, 
+        inset -2px -2px 4px #1b263b,
+        0 4px 14px rgba(0, 0, 0, 0.35);
     }
-    .admin-nav-icon { width: 18px; height: 18px; opacity: 0.8; stroke-width: 2; flex-shrink: 0; }
-    .admin-nav-item.active .admin-nav-icon { opacity: 1; }
+    .admin-nav-icon { width: 18px; height: 18px; opacity: 0.75; stroke-width: 2; flex-shrink: 0; }
+    .admin-nav-item.active .admin-nav-icon { opacity: 1; color: var(--accent-orange); }
     
-    /* Main Area */
-    .admin-main { margin-left: 270px; flex: 1; padding: 36px 44px; }
+    /* Main Content Area */
+    .admin-main { margin-left: 270px; flex: 1; padding: 36px 40px; }
     .admin-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 32px;
-      background: #fff;
-      padding: 20px 28px;
-      border: 1px solid var(--admin-border);
-      border-radius: 8px;
+      background: linear-gradient(145deg, var(--card-bg-start), var(--card-bg-end));
+      padding: 22px 28px;
+      border: 1px solid var(--border-dark);
+      border-radius: 20px;
+      box-shadow: 
+        16px 16px 40px #060910, 
+        -12px -12px 32px #1a273e,
+        inset 1px 1px 1px rgba(255, 255, 255, 0.1);
     }
     .admin-title {
       font-family: 'Space Grotesk', sans-serif;
@@ -105,38 +138,247 @@
       font-weight: 700;
       letter-spacing: 0.5px;
       text-transform: uppercase;
-    }
-    .admin-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
-    .stat-card { background: #fff; border: 1px solid var(--admin-border); padding: 22px; border-radius: 8px; }
-    .stat-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--admin-text-muted); margin-bottom: 8px; }
-    .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 800; color: #0f172a; }
-    .admin-card { background: #fff; border: 1px solid var(--admin-border); padding: 28px; margin-bottom: 28px; border-radius: 8px; }
-    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border: 1px solid var(--admin-border); border-radius: 8px; overflow: hidden; }
-    .admin-table th {
-      background: #0f172a;
       color: #fff;
+    }
+
+    /* Skeuomorphic Stat Cards */
+    .admin-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+    .stat-card {
+      background: linear-gradient(145deg, #182337, #0f1624);
+      border: 1px solid var(--border-dark);
+      padding: 22px;
+      border-radius: 16px;
+      box-shadow: 
+        inset 3px 3px 6px #080d16, 
+        inset -3px -3px 6px #1d2c46,
+        0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    .stat-label {
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 1px;
       text-transform: uppercase;
-      padding: 14px 18px;
-      text-align: left;
+      color: var(--text-muted);
+      margin-bottom: 8px;
     }
-    .admin-table td { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-    .status-badge { padding: 4px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 4px; display: inline-block; }
+    .stat-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    /* Skeuomorphic Cards & Containers */
+    .admin-card {
+      background: linear-gradient(145deg, var(--card-bg-start), var(--card-bg-end));
+      border: 1px solid var(--border-dark);
+      padding: 28px;
+      margin-bottom: 28px;
+      border-radius: 20px;
+      box-shadow: 
+        16px 16px 40px #060910, 
+        -12px -12px 32px #1a273e,
+        inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Tables */
+    .admin-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 13px;
+      background: rgba(15, 22, 36, 0.6);
+      border: 1px solid var(--border-dark);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: inset 2px 2px 5px #070b13, inset -2px -2px 5px #1a273e;
+    }
+    .admin-table th {
+      background: #0d1422;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 16px 18px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-dark);
+    }
+    .admin-table td {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: middle;
+      color: #e2e8f0;
+    }
+    .admin-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    .admin-table tr:last-child td { border-bottom: none; }
+
+    .status-badge {
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-radius: 6px;
+      display: inline-block;
+    }
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
-    .form-group { margin-bottom: 20px; }
-    .form-label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; color: #334155; }
-    .form-input, .form-textarea, .form-select {
-      width: 100%; padding: 11px 16px; border: 1px solid #cbd5e1; font-family: inherit; font-size: 13px; outline: none; border-radius: 6px; transition: border-color 0.15s;
+    
+    /* Inset Form Controls */
+    .form-group { margin-bottom: 22px; }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #cbd5e1;
     }
-    .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: #0f172a; }
-    .alert-success { background: #f0fdf4; color: #166534; padding: 14px 22px; margin-bottom: 28px; font-size: 13px; border: 1px solid #bbf7d0; border-radius: 6px; font-weight: 600; }
-    .btn-edit { background: #f1f5f9; color: #0f172a; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; border: 1px solid #cbd5e1; cursor: pointer; margin-right: 6px; }
-    .btn-edit:hover { background: #e2e8f0; }
-    .btn-delete { background: #fef2f2; color: #dc2626; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; border: 1px solid #fecaca; cursor: pointer; }
-    .btn-delete:hover { background: #fee2e2; }
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      background: #0f1624;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 13.5px;
+      color: #fff;
+      outline: none;
+      box-shadow: 
+        inset 4px 4px 8px #070b13, 
+        inset -3px -3px 6px #1a273e;
+      transition: all 0.25s ease;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--accent-orange);
+      box-shadow: 
+        inset 4px 4px 8px #070b13, 
+        inset -3px -3px 6px #1a273e,
+        0 0 12px rgba(238, 77, 45, 0.35);
+    }
+    .form-select option { background: #111826; color: #fff; }
+
+    .alert-success {
+      background: rgba(52, 211, 153, 0.12);
+      color: #6ee7b7;
+      padding: 14px 22px;
+      margin-bottom: 28px;
+      font-size: 13px;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    /* Skeuomorphic 3D Buttons */
+    .btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 12px 22px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(145deg, var(--accent-orange-hover), var(--accent-orange));
+      color: #fff;
+      box-shadow: 
+        5px 5px 14px #060a12, 
+        -4px -4px 10px #1e2c45,
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(145deg, #ff6b4d, #f14422);
+      box-shadow: 7px 7px 18px #060a12, -5px -5px 12px #1e2c45;
+    }
+    .btn-primary:active {
+      transform: translateY(2px);
+      box-shadow: inset 3px 3px 8px rgba(0,0,0,0.6);
+    }
+
+    .btn-outline {
+      background: linear-gradient(145deg, #1e293b, #111827);
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 4px 4px 10px #060a12, -3px -3px 8px #1c2a42;
+    }
+    .btn-outline:hover { color: #fff; border-color: rgba(255, 255, 255, 0.3); }
+
+    .btn-edit {
+      background: linear-gradient(145deg, #1e293b, #111827);
+      color: #60a5fa;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      cursor: pointer;
+      margin-right: 6px;
+      box-shadow: 2px 2px 6px #060a12;
+      transition: all 0.15s;
+    }
+    .btn-edit:hover { background: rgba(96, 165, 250, 0.15); color: #93c5fd; }
+
+    .btn-delete {
+      background: linear-gradient(145deg, #2a1215, #1c0d0f);
+      color: #fca5a5;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      cursor: pointer;
+      box-shadow: 2px 2px 6px #060a12;
+      transition: all 0.15s;
+    }
+    .btn-delete:hover { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+    /* Quill Editor Dark Theme Overrides */
+    .ql-toolbar.ql-snow {
+      background: #0f1624 !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+    .ql-container.ql-snow {
+      background: #0b101b !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+      color: #fff !important;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+    .ql-stroke { stroke: #cbd5e1 !important; }
+    /* Animated Checkmark SVG Styling */
+    .checkmark-circle {
+      stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3;
+      stroke-miterlimit: 10; stroke: #34d399; fill: none;
+      animation: strokeCheckCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    .checkmark-check {
+      transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48;
+      stroke: #34d399; animation: strokeCheckMark 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.3s forwards;
+    }
+    @keyframes strokeCheckCircle { 100% { stroke-dashoffset: 0; } }
+    @keyframes strokeCheckMark { 100% { stroke-dashoffset: 0; } }
+
+    .modal-backdrop-blur {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(12, 18, 30, 0.85); backdrop-filter: blur(10px);
+      z-index: 999999; display: flex; align-items: center; justify-content: center;
+      animation: fadeInModal 0.25s ease forwards;
+    }
+    @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
   </style>
 </head>
 <body>
@@ -160,6 +402,10 @@
         <button class="admin-nav-item" onclick="switchTab('branding', this)">
           <svg class="admin-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
           Logo & Header
+        </button>
+        <button class="admin-nav-item" onclick="switchTab('homelayout', this)">
+          <svg class="admin-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V6z M8 10h8 M8 14h4" /></svg>
+          Layout Beranda
         </button>
         <button class="admin-nav-item" onclick="switchTab('banners', this)">
           <svg class="admin-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -204,10 +450,27 @@
           Kontak & Sosmed
         </button>
       </nav>
-      <div style="padding:24px;border-top:1px solid rgba(255,255,255,0.08)">
-        <a href="{{ route('home') }}" target="_blank" class="btn btn-outline" style="width:100%;color:#fff;border-color:rgba(255,255,255,0.2);text-align:center;font-size:12px;padding:10px">
-          Pratinjau Website ↗
-        </a>
+      <div style="padding:20px 24px; border-top:1px solid rgba(255,255,255,0.08); background:rgba(0,0,0,0.2);">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:linear-gradient(145deg, #ee4d2d, #ff6b4d); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; box-shadow:0 4px 10px rgba(238,77,45,0.4); flex-shrink:0;">
+            {{ strtoupper(substr(Auth::user()?->name ?? 'A', 0, 1)) }}
+          </div>
+          <div style="min-width:0; flex:1;">
+            <div style="font-size:13px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ Auth::user()?->name ?? 'Admin' }}</div>
+            <div style="font-size:11px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ Auth::user()?->email ?? 'admin@twostryve.id' }}</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <a href="{{ route('home') }}" target="_blank" class="btn btn-outline" style="flex:1; color:#fff; border-color:rgba(255,255,255,0.2); text-align:center; font-size:11px; padding:8px 4px; display:inline-block; text-decoration:none;">
+            Pratinjau ↗
+          </a>
+          <form action="{{ route('admin.logout') }}" method="POST" style="flex:1;">
+            @csrf
+            <button type="submit" class="btn" style="width:100%; background:linear-gradient(145deg, #ef4444, #dc2626); color:#fff; border:none; text-align:center; font-size:11px; padding:8px 4px; font-weight:700; border-radius:6px; cursor:pointer; box-shadow:0 4px 10px rgba(220,38,38,0.3);">
+              🚪 Logout
+            </button>
+          </form>
+        </div>
       </div>
     </aside>
 
@@ -222,7 +485,7 @@
 
       <div class="admin-header">
         <h1 class="admin-title" id="pageTitle">Dashboard Overview</h1>
-        <div><span class="status-badge" style="background:#f1f5f9;color:#0f172a;border:1px solid #cbd5e1">Database Synchronized</span></div>
+        <div><span class="status-badge" style="background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.3);box-shadow:0 0 12px rgba(52,211,153,0.2);">🟢 SYSTEM ONLINE & SECURED</span></div>
       </div>
 
       {{-- DASHBOARD TAB --}}
@@ -277,8 +540,8 @@
             <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;letter-spacing:1px;margin-bottom:16px;text-transform:uppercase">Log Aktifitas</h3>
             <div style="display:flex;flex-direction:column;gap:12px;">
               @forelse($activityLogs ?? [] as $log)
-                <div style="display:flex;gap:12px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;">
-                  <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:{{ $log->type === 'order' ? '#f0fdf4' : '#eff6ff' }};color:{{ $log->type === 'order' ? '#166534' : '#1e40af' }}">
+                <div style="display:flex;gap:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                  <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:{{ $log->type === 'order' ? 'rgba(52,211,153,0.15)' : 'rgba(96,165,250,0.15)' }};color:{{ $log->type === 'order' ? '#34d399' : '#60a5fa' }};border:1px solid {{ $log->type === 'order' ? 'rgba(52,211,153,0.3)' : 'rgba(96,165,250,0.3)' }}">
                     @if($log->type === 'order')
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     @else
@@ -286,12 +549,12 @@
                     @endif
                   </div>
                   <div>
-                    <div style="font-size:13px;font-weight:600;color:#0f172a;line-height:1.4">{{ $log->description }}</div>
-                    <div style="font-size:11px;color:#64748b;margin-top:2px">{{ $log->created_at->diffForHumans() }}</div>
+                    <div style="font-size:13px;font-weight:600;color:#f8fafc;line-height:1.4">{{ $log->description }}</div>
+                    <div style="font-size:11px;color:#94a3b8;margin-top:2px">{{ $log->created_at->diffForHumans() }}</div>
                   </div>
                 </div>
               @empty
-                <div style="text-align:center;font-size:13px;color:#64748b;padding:20px 0;">Belum ada log aktifitas.</div>
+                <div style="text-align:center;font-size:13px;color:#94a3b8;padding:20px 0;">Belum ada log aktifitas.</div>
               @endforelse
             </div>
           </div>
@@ -307,7 +570,10 @@
             <input type="hidden" name="_active_tab" value="branding">
             <div class="form-group">
               <label class="form-label">Upload Gambar Logo Baru</label>
-              <input type="file" class="form-input" name="site_logo_file" accept="image/*">
+              <div style="font-size:11px; color:#ff8c73; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px; background:rgba(238, 77, 45, 0.12); padding:6px 12px; border-radius:6px; border:1px dashed rgba(238, 77, 45, 0.4)">
+                <span>📐 Ukuran Rekomendasi Section Logo: 300 × 120 px (Rasio 5:2 PNG Transparan)</span>
+              </div>
+              <input type="file" class="form-input auto-crop-input" name="site_logo_file" accept="image/*" data-crop-ratio="2.5" data-crop-guide="Logo Toko: 300 × 120 px (Rasio 5:2 PNG)">
               @if(!empty($settings['site_logo']))
                 <div style="margin-top:10px;font-size:12px;color:#64748b">Logo Aktif: <br><img src="{{ asset($settings['site_logo']) }}" style="max-height:40px;margin-top:6px;background:#1e293b;padding:6px;border-radius:4px"></div>
               @endif
@@ -363,12 +629,26 @@
             </div>
             <div class="form-group">
               <label class="form-label">Upload Foto Produk (Biarkan kosong jika tidak diubah)</label>
-              <input type="file" class="form-input" name="image" accept="image/*">
+              <div style="font-size:11px; color:#ff8c73; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px; background:rgba(238, 77, 45, 0.12); padding:6px 12px; border-radius:6px; border:1px dashed rgba(238, 77, 45, 0.4)">
+                <span>📐 Ukuran Rekomendasi Section Produk: 800 × 800 px atau 1000 × 1000 px (Rasio Presisi 1:1 Persegi)</span>
+              </div>
+              <input type="file" class="form-input auto-crop-input" name="image" accept="image/*" data-crop-ratio="1" data-crop-guide="Gambar Produk: 800 × 800 px (Rasio 1:1 Persegi)">
             </div>
             <div class="form-group">
               <label class="form-label">Deskripsi Produk</label>
               <textarea class="form-textarea" name="description" id="productDesc" required rows="3" placeholder="Deskripsi lengkap produk..."></textarea>
             </div>
+
+            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <label class="form-label" style="margin-bottom:0">Atur Varian (Warna & Ukuran)</label>
+                <button type="button" class="btn btn-sm btn-outline" onclick="addVariantRow()">+ Tambah Varian</button>
+              </div>
+              <div id="variantContainer" style="display:flex; flex-direction:column; gap:10px;">
+                <!-- Variant rows injected by JS -->
+              </div>
+            </div>
+
             <div style="display:flex;gap:20px;margin-bottom:20px">
               <label><input type="checkbox" name="is_featured" id="productFeatured" value="1"> Best Seller / Featured</label>
               <label><input type="checkbox" name="is_new" id="productNew" value="1"> New Arrival</label>
@@ -425,7 +705,10 @@
             </div>
             <div class="form-group">
               <label class="form-label">Upload Gambar Kategori (Biarkan kosong jika tidak diubah)</label>
-              <input type="file" class="form-input" name="image" accept="image/*">
+              <div style="font-size:11px; color:#ff8c73; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px; background:rgba(238, 77, 45, 0.12); padding:6px 12px; border-radius:6px; border:1px dashed rgba(238, 77, 45, 0.4)">
+                <span>📐 Ukuran Rekomendasi Section Kategori: 600 × 600 px (Rasio Presisi 1:1 Persegi)</span>
+              </div>
+              <input type="file" class="form-input auto-crop-input" name="image" accept="image/*" data-crop-ratio="1" data-crop-guide="Gambar Kategori: 600 × 600 px (Rasio 1:1 Persegi)">
             </div>
             <button type="submit" class="btn btn-primary" id="btnSubmitCategory">Simpan Kategori</button>
           </form>
@@ -469,15 +752,21 @@
             <input type="hidden" name="_active_tab" value="banners">
             <input type="hidden" name="id" id="bannerId">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-              <div class="form-group"><label class="form-label">Judul Banner</label><input type="text" class="form-input" name="title" id="bannerTitle" required placeholder="SUMMER COLLECTION 2026"></div>
-              <div class="form-group"><label class="form-label">Tag Sub-judul</label><input type="text" class="form-input" name="tag" id="bannerTag" required placeholder="LIMITED DROP"></div>
+              <div class="form-group"><label class="form-label">Judul Banner (Opsional)</label><input type="text" class="form-input" name="title" id="bannerTitle" placeholder="misal: SUMMER COLLECTION 2026 (Boleh Kosong)"></div>
+              <div class="form-group"><label class="form-label">Tag Sub-judul (Opsional)</label><input type="text" class="form-input" name="tag" id="bannerTag" placeholder="misal: LIMITED DROP (Boleh Kosong)"></div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-              <div class="form-group"><label class="form-label">Teks Tombol CTA</label><input type="text" class="form-input" name="cta" id="bannerCta" value="Shop Now" required></div>
-              <div class="form-group"><label class="form-label">Link Tujuan</label><input type="text" class="form-input" name="link" id="bannerLink" value="/shop" required></div>
+              <div class="form-group"><label class="form-label">Teks Tombol CTA (Opsional)</label><input type="text" class="form-input" name="cta" id="bannerCta" placeholder="misal: Shop Now (Boleh Kosong)"></div>
+              <div class="form-group"><label class="form-label">Link Tujuan (Opsional)</label><input type="text" class="form-input" name="link" id="bannerLink" placeholder="misal: /shop (Boleh Kosong)"></div>
             </div>
-            <div class="form-group"><label class="form-label">Upload Gambar Hero Banner (Kosongkan jika tidak diubah)</label><input type="file" class="form-input" name="image" accept="image/*"></div>
-            <div class="form-group"><label class="form-label">Deskripsi Singkat</label><textarea class="form-textarea" name="description" id="bannerDesc" required rows="2"></textarea></div>
+            <div class="form-group">
+              <label class="form-label">Upload Gambar Hero Banner (Wajib saat tambah baru)</label>
+              <div style="font-size:11px; color:#ff8c73; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px; background:rgba(238, 77, 45, 0.12); padding:6px 12px; border-radius:6px; border:1px dashed rgba(238, 77, 45, 0.4)">
+                <span>📐 Ukuran Rekomendasi Section Hero Banner: 1920 × 800 px (Rasio 21:9 / 16:9 Landscape)</span>
+              </div>
+              <input type="file" class="form-input auto-crop-input" name="image" accept="image/*" data-crop-ratio="2.4" data-crop-guide="Hero Banner: 1920 × 800 px (Rasio 21:9)">
+            </div>
+            <div class="form-group"><label class="form-label">Deskripsi Singkat (Opsional)</label><textarea class="form-textarea" name="description" id="bannerDesc" rows="2" placeholder="Deskripsi banner singkat (Boleh Kosong)"></textarea></div>
             <button type="submit" class="btn btn-primary" id="btnSubmitBanner">Simpan Hero Banner</button>
           </form>
         </div>
@@ -517,7 +806,10 @@
             <input type="hidden" name="_active_tab" value="promobanner">
             <div class="form-group">
               <label class="form-label">Upload Gambar Banner Mid Promo</label>
-              <input type="file" class="form-input" name="promo_banner_file" accept="image/*">
+              <div style="font-size:11px; color:#ff8c73; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px; background:rgba(238, 77, 45, 0.12); padding:6px 12px; border-radius:6px; border:1px dashed rgba(238, 77, 45, 0.4)">
+                <span>📐 Ukuran Rekomendasi Section Promo Banner: 1200 × 500 px (Rasio 12:5 Wide)</span>
+              </div>
+              <input type="file" class="form-input auto-crop-input" name="promo_banner_file" accept="image/*" data-crop-ratio="2.4" data-crop-guide="Promo Banner Mid: 1200 × 500 px (Rasio 12:5 Wide)">
               @if(!empty($settings['promo_banner_image']))
                 <div style="margin-top:10px;font-size:12px;color:#64748b">Gambar Promo Aktif: <br><img src="{{ asset($settings['promo_banner_image']) }}" style="max-height:80px;margin-top:6px;border-radius:4px"></div>
               @endif
@@ -549,9 +841,21 @@
               <div class="form-group"><label class="form-label">Tag / Kategori Artikel</label><input type="text" class="form-input" name="tag" id="articleTag" required placeholder="Style Guide"></div>
             </div>
             <div class="form-group"><label class="form-label">Waktu Baca (Estimasi)</label><input type="text" class="form-input" name="read_time" id="articleReadTime" value="5 min read" required></div>
-            <div class="form-group"><label class="form-label">Upload Cover Gambar Artikel (Kosongkan jika tidak diubah)</label><input type="file" class="form-input" name="cover_image" accept="image/*"></div>
+            <div class="form-group">
+              <label class="form-label">Upload Cover Gambar Artikel (Kosongkan jika tidak diubah)</label>
+              <div style="font-size:11px; color:#ff8c73; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px; background:rgba(238, 77, 45, 0.12); padding:6px 12px; border-radius:6px; border:1px dashed rgba(238, 77, 45, 0.4)">
+                <span>📐 Ukuran Rekomendasi Section Artikel: 1200 × 630 px (Rasio 16:9 Landscape)</span>
+              </div>
+              <input type="file" class="form-input auto-crop-input" name="cover_image" accept="image/*" data-crop-ratio="1.904" data-crop-guide="Cover Artikel: 1200 × 630 px (Rasio 16:9 Landscape)">
+            </div>
             <div class="form-group"><label class="form-label">Ringkasan (Excerpt)</label><textarea class="form-textarea" name="excerpt" id="articleExcerpt" required rows="2" placeholder="Ringkasan singkat artikel..."></textarea></div>
-            <div class="form-group"><label class="form-label">Isi Lengkap Artikel (HTML didukung)</label><textarea class="form-textarea" name="content" id="articleContent" required rows="6" placeholder="<p>Isi artikel lengkap...</p>"></textarea></div>
+            <div class="form-group">
+              <label class="form-label">Isi Lengkap Artikel (Visual Editor — Bebas Edit Font, Ukuran, Nomor, Bold, & Warna)</label>
+              <div style="background:#fff; border-radius:6px; border:1px solid #cbd5e1; overflow:hidden;">
+                <div id="articleQuillEditor" style="min-height:240px; font-size:14px;"></div>
+              </div>
+              <textarea name="content" id="articleContent" style="display:none;"></textarea>
+            </div>
             <button type="submit" class="btn btn-primary" id="btnSubmitArticle">Terbitkan Artikel</button>
           </form>
         </div>
@@ -601,7 +905,13 @@
             </div>
             <div class="form-group"><label class="form-label">Judul Utama Halaman</label><input type="text" class="form-input" id="pageTitleInput" name="title" required value="Tentang Kami"></div>
             <div class="form-group"><label class="form-label">Sub-judul Halaman</label><input type="text" class="form-input" id="pageSubtitleInput" name="subtitle" value="Mengenal lebih dekat TWOSTRYVE"></div>
-            <div class="form-group"><label class="form-label">Isi Konten Halaman (HTML didukung)</label><textarea class="form-textarea" id="pageContentInput" name="content" required rows="8"><p>TWOSTRYVE adalah brand streetwear lokal...</p></textarea></div>
+            <div class="form-group">
+              <label class="form-label">Isi Konten Halaman (Visual Editor — Bebas Edit Font, Ukuran, Nomor, Bold, & Warna)</label>
+              <div style="background:#fff; border-radius:6px; border:1px solid #cbd5e1; overflow:hidden;">
+                <div id="pageQuillEditor" style="min-height:280px; font-size:14px;"></div>
+              </div>
+              <textarea name="content" id="pageContentInput" style="display:none;"></textarea>
+            </div>
             <button type="submit" class="btn btn-primary">Simpan Konten Halaman</button>
           </form>
         </div>
@@ -747,6 +1057,92 @@
         </div>
       </div>
 
+      {{-- LAYOUT BERANDA TAB --}}
+      <div id="tab-homelayout" class="tab-pane">
+        <div class="admin-card">
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;letter-spacing:1px;margin-bottom:16px;text-transform:uppercase">Pengaturan Section Halaman Utama</h3>
+          <p style="margin-bottom: 24px; color: var(--admin-text-muted);">Pilih section mana saja yang ingin ditampilkan (ON) atau disembunyikan (OFF) di halaman utama website pengunjung.</p>
+          <form action="{{ route('admin.settings.update') }}" method="POST">
+            @csrf
+            <input type="hidden" name="_active_tab" value="homelayout">
+            
+            <div style="display:flex; flex-direction:column; gap:20px; max-width:600px;">
+              
+              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:16px;">
+                <div>
+                  <strong style="display:block;margin-bottom:4px">Kategori Produk</strong>
+                  <span style="font-size:13px;color:#64748b">Menampilkan kotak kategori (T-Shirt, Hoodie, dll)</span>
+                </div>
+                <select name="show_section_categories" class="form-input" style="width:120px; margin-bottom:0">
+                  <option value="1" {{ ($settings['show_section_categories'] ?? '1') == '1' ? 'selected' : '' }}>ON (Tampil)</option>
+                  <option value="0" {{ ($settings['show_section_categories'] ?? '1') == '0' ? 'selected' : '' }}>OFF (Sembunyi)</option>
+                </select>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:16px;">
+                <div>
+                  <strong style="display:block;margin-bottom:4px">New Arrivals</strong>
+                  <span style="font-size:13px;color:#64748b">Menampilkan produk terbaru yang diunggah ke toko</span>
+                </div>
+                <select name="show_section_new_arrivals" class="form-input" style="width:120px; margin-bottom:0">
+                  <option value="1" {{ ($settings['show_section_new_arrivals'] ?? '1') == '1' ? 'selected' : '' }}>ON (Tampil)</option>
+                  <option value="0" {{ ($settings['show_section_new_arrivals'] ?? '1') == '0' ? 'selected' : '' }}>OFF (Sembunyi)</option>
+                </select>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:16px;">
+                <div>
+                  <strong style="display:block;margin-bottom:4px">Sale Products</strong>
+                  <span style="font-size:13px;color:#64748b">Menampilkan produk-produk yang sedang diskon (🔥 Sale)</span>
+                </div>
+                <select name="show_section_sale" class="form-input" style="width:120px; margin-bottom:0">
+                  <option value="1" {{ ($settings['show_section_sale'] ?? '1') == '1' ? 'selected' : '' }}>ON (Tampil)</option>
+                  <option value="0" {{ ($settings['show_section_sale'] ?? '1') == '0' ? 'selected' : '' }}>OFF (Sembunyi)</option>
+                </select>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:16px;">
+                <div>
+                  <strong style="display:block;margin-bottom:4px">Best Sellers</strong>
+                  <span style="font-size:13px;color:#64748b">Menampilkan produk unggulan (Featured)</span>
+                </div>
+                <select name="show_section_best_sellers" class="form-input" style="width:120px; margin-bottom:0">
+                  <option value="1" {{ ($settings['show_section_best_sellers'] ?? '1') == '1' ? 'selected' : '' }}>ON (Tampil)</option>
+                  <option value="0" {{ ($settings['show_section_best_sellers'] ?? '1') == '0' ? 'selected' : '' }}>OFF (Sembunyi)</option>
+                </select>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:16px;">
+                <div>
+                  <strong style="display:block;margin-bottom:4px">Magazine (Artikel Blog)</strong>
+                  <span style="font-size:13px;color:#64748b">Menampilkan daftar artikel blog terbaru di halaman depan</span>
+                </div>
+                <select name="show_section_magazine" class="form-input" style="width:120px; margin-bottom:0">
+                  <option value="1" {{ ($settings['show_section_magazine'] ?? '1') == '1' ? 'selected' : '' }}>ON (Tampil)</option>
+                  <option value="0" {{ ($settings['show_section_magazine'] ?? '1') == '0' ? 'selected' : '' }}>OFF (Sembunyi)</option>
+                </select>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <strong style="display:block;margin-bottom:4px">Newsletter (Form Berlangganan)</strong>
+                  <span style="font-size:13px;color:#64748b">Menampilkan form untuk memasukkan email newsletter</span>
+                </div>
+                <select name="show_section_newsletter" class="form-input" style="width:120px; margin-bottom:0">
+                  <option value="1" {{ ($settings['show_section_newsletter'] ?? '1') == '1' ? 'selected' : '' }}>ON (Tampil)</option>
+                  <option value="0" {{ ($settings['show_section_newsletter'] ?? '1') == '0' ? 'selected' : '' }}>OFF (Sembunyi)</option>
+                </select>
+              </div>
+              
+            </div>
+
+            <div style="margin-top: 32px;">
+              <button type="submit" class="btn btn-primary">Simpan Layout Halaman Utama</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -797,6 +1193,17 @@
       document.getElementById('productFeatured').checked = p.is_featured == 1;
       document.getElementById('productNew').checked = p.is_new == 1;
 
+      // Populate variants
+      const container = document.getElementById('variantContainer');
+      container.innerHTML = ''; // clear
+      if (p.variants && p.variants.length > 0) {
+        p.variants.forEach(v => {
+          addVariantRow(v.id, v.color_name, v.color_hex, v.size, v.stock);
+        });
+      } else {
+        addVariantRow();
+      }
+
       document.getElementById('productFormTitle').textContent = 'Update Produk #' + p.id + ' (' + p.name + ')';
       document.getElementById('btnSubmitProduct').textContent = 'Simpan Perubahan Produk';
       document.getElementById('btnCancelProductEdit').style.display = 'inline-block';
@@ -809,7 +1216,36 @@
       document.getElementById('productFormTitle').textContent = 'Form Tambah / Edit Produk';
       document.getElementById('btnSubmitProduct').textContent = 'Simpan Produk Baru';
       document.getElementById('btnCancelProductEdit').style.display = 'none';
+      document.getElementById('variantContainer').innerHTML = '';
+      addVariantRow();
     }
+
+    function addVariantRow(id = '', color_name = '', color_hex = '#000000', size = 'M', stock = 10) {
+      const container = document.getElementById('variantContainer');
+      const row = document.createElement('div');
+      row.style.display = 'grid';
+      row.style.gridTemplateColumns = '2fr 1fr 1fr 1fr auto';
+      row.style.gap = '10px';
+      row.style.alignItems = 'center';
+      
+      row.innerHTML = `
+        <input type="hidden" name="variant_ids[]" value="${id}">
+        <input type="text" class="form-input" name="variant_color_names[]" value="${color_name}" placeholder="Nama Warna (cth: Hitam)" required style="margin-bottom:0">
+        <input type="color" class="form-input" name="variant_color_hexes[]" value="${color_hex}" style="padding:0; height:42px; margin-bottom:0; cursor:pointer;" required>
+        <input type="text" class="form-input" name="variant_sizes[]" value="${size}" placeholder="Ukuran" required style="margin-bottom:0">
+        <input type="number" class="form-input" name="variant_stocks[]" value="${stock}" placeholder="Stok" min="0" required style="margin-bottom:0">
+        <button type="button" class="btn btn-delete" style="padding:10px;" onclick="this.parentElement.remove()">Hapus</button>
+      `;
+      container.appendChild(row);
+    }
+    
+    // Initialize one row if empty
+    document.addEventListener('DOMContentLoaded', function() {
+      if(document.getElementById('variantContainer') && document.getElementById('variantContainer').innerHTML.trim() === '') {
+        addVariantRow();
+      }
+    });
+
 
     function editCategory(c) {
       document.getElementById('categoryId').value = c.id;
@@ -857,7 +1293,10 @@
       document.getElementById('articleTag').value = a.tag;
       document.getElementById('articleReadTime').value = a.read_time;
       document.getElementById('articleExcerpt').value = a.excerpt;
-      document.getElementById('articleContent').value = a.content;
+      if (typeof articleQuill !== 'undefined' && articleQuill) {
+        articleQuill.root.innerHTML = a.content || '';
+      }
+      document.getElementById('articleContent').value = a.content || '';
       document.getElementById('articleFormTitle').textContent = 'Edit Artikel #' + a.id;
       document.getElementById('btnSubmitArticle').textContent = 'Simpan Perubahan Artikel';
       document.getElementById('btnCancelArticleEdit').style.display = 'inline-block';
@@ -869,6 +1308,9 @@
       document.getElementById('articleTag').value = '';
       document.getElementById('articleReadTime').value = '5 min read';
       document.getElementById('articleExcerpt').value = '';
+      if (typeof articleQuill !== 'undefined' && articleQuill) {
+        articleQuill.root.innerHTML = '';
+      }
       document.getElementById('articleContent').value = '';
       document.getElementById('articleFormTitle').textContent = 'Tambah / Edit Artikel Blog';
       document.getElementById('btnSubmitArticle').textContent = 'Terbitkan Artikel';
@@ -880,8 +1322,358 @@
       if (p) {
         document.getElementById('pageTitleInput').value = p.title;
         document.getElementById('pageSubtitleInput').value = p.subtitle || '';
-        document.getElementById('pageContentInput').value = p.content;
+        if (typeof pageQuill !== 'undefined' && pageQuill) {
+          pageQuill.root.innerHTML = p.content || '';
+        }
+        document.getElementById('pageContentInput').value = p.content || '';
       }
+    }
+  </script>
+
+  <!-- CROPPER.JS CDN & IMAGE CROPPER MODAL -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+  <div id="imageCropModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.85); backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:92%; max-width:850px; border-radius:12px; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); display:flex; flex-direction:column; max-height:92vh;">
+      <div style="padding:18px 24px; background:#0f172a; color:#fff; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h3 style="margin:0; font-family:'Space Grotesk',sans-serif; font-size:16px; letter-spacing:0.5px; text-transform:uppercase;">
+            <span style="color:#ee4d2d">✂️</span> Sesuaikan & Crop Ukuran Foto Section
+          </h3>
+          <p style="margin:4px 0 0; font-size:12px; color:#94a3b8;" id="cropSectionSpecGuide">
+            Spesifikasi Ideal Section: -
+          </p>
+        </div>
+        <button type="button" onclick="closeImageCropModal()" style="background:transparent; border:none; color:#fff; font-size:24px; cursor:pointer; line-height:1;">&times;</button>
+      </div>
+
+      <div style="padding:20px; flex:1; overflow:hidden; display:flex; flex-direction:column; background:#f8fafc; align-items:center; justify-content:center;">
+        <div style="width:100%; height:400px; background:#0f172a; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+          <img id="cropperTargetImg" src="" style="max-width:100%; max-height:100%; display:block;">
+        </div>
+
+        <div style="width:100%; margin-top:16px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; background:#fff; padding:12px 16px; border:1px solid #e2e8f0; border-radius:8px;">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <span style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase; margin-right:4px;">Pilih Preset Rasio:</span>
+            <button type="button" style="padding:4px 10px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; font-size:11px; font-weight:600; cursor:pointer;" onclick="setCropAspectRatio(1/1, '1:1 Persegi')">1:1</button>
+            <button type="button" style="padding:4px 10px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; font-size:11px; font-weight:600; cursor:pointer;" onclick="setCropAspectRatio(2.4, '21:9 Hero Banner')">21:9</button>
+            <button type="button" style="padding:4px 10px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; font-size:11px; font-weight:600; cursor:pointer;" onclick="setCropAspectRatio(2.4, '12:5 Promo Mid')">12:5</button>
+            <button type="button" style="padding:4px 10px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; font-size:11px; font-weight:600; cursor:pointer;" onclick="setCropAspectRatio(1.904, '16:9 Cover Artikel')">16:9</button>
+            <button type="button" style="padding:4px 10px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; font-size:11px; font-weight:600; cursor:pointer;" onclick="setCropAspectRatio(NaN, 'Free Crop (Bebas)')">Bebas</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button type="button" onclick="cropperObj?.rotate(-90)" style="padding:6px 12px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; font-size:12px; font-weight:600; cursor:pointer;">↺ Putar</button>
+            <button type="button" onclick="cropperObj?.zoom(0.1)" style="padding:6px 12px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; font-size:12px; font-weight:600; cursor:pointer;">🔍 +</button>
+            <button type="button" onclick="cropperObj?.zoom(-0.1)" style="padding:6px 12px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; font-size:12px; font-weight:600; cursor:pointer;">🔍 -</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px 24px; background:#fff; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; color:#64748b; font-weight:600;" id="cropDimensionsLive">Hasil Crop Siap Diunggah</span>
+        <div style="display:flex; gap:10px;">
+          <button type="button" onclick="closeImageCropModal()" style="padding:10px 18px; background:#f1f5f9; border:1px solid #cbd5e1; color:#0f172a; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">Batal</button>
+          <button type="button" onclick="applyImageCrop()" style="padding:10px 24px; background:#ee4d2d; color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(238,77,45,0.3);">✓ Terapkan & Sesuaikan Ukuran</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let cropperObj = null;
+    let activeFileInput = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.auto-crop-input').forEach(input => {
+        input.addEventListener('change', function(e) {
+          if (this.files && this.files[0]) {
+            activeFileInput = this;
+            openImageCropModal(this.files[0]);
+          }
+        });
+      });
+    });
+
+    function openImageCropModal(file) {
+      const modal = document.getElementById('imageCropModal');
+      const targetImg = document.getElementById('cropperTargetImg');
+      const guideText = document.getElementById('cropSectionSpecGuide');
+      const initialRatio = activeFileInput ? parseFloat(activeFileInput.dataset.cropRatio || NaN) : NaN;
+
+      if (activeFileInput && activeFileInput.dataset.cropGuide) {
+        guideText.textContent = 'Spesifikasi Ideal Section: ' + activeFileInput.dataset.cropGuide;
+      } else {
+        guideText.textContent = 'Spesifikasi Ideal Section: Bebas / Sesuai Pilihan';
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        targetImg.src = e.target.result;
+        modal.style.display = 'flex';
+
+        if (cropperObj) cropperObj.destroy();
+        cropperObj = new Cropper(targetImg, {
+          aspectRatio: isNaN(initialRatio) ? NaN : initialRatio,
+          viewMode: 1,
+          autoCropArea: 0.95,
+          responsive: true,
+          restore: false,
+          checkCrossOrigin: false,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setCropAspectRatio(ratio, label) {
+      if (cropperObj) {
+        cropperObj.setAspectRatio(ratio);
+        document.getElementById('cropDimensionsLive').textContent = 'Preset Diterapkan: ' + label;
+      }
+    }
+
+    function closeImageCropModal() {
+      const modal = document.getElementById('imageCropModal');
+      modal.style.display = 'none';
+      if (cropperObj) {
+        cropperObj.destroy();
+        cropperObj = null;
+      }
+    }
+
+    function applyImageCrop() {
+      if (!cropperObj || !activeFileInput) return;
+
+      const canvas = cropperObj.getCroppedCanvas({
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high',
+      });
+
+      if (!canvas) return;
+
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+
+        const originalName = activeFileInput.files[0] ? activeFileInput.files[0].name : 'cropped-image.png';
+        const croppedFile = new File([blob], originalName, { type: blob.type || 'image/png' });
+
+        const container = new DataTransfer();
+        container.items.add(croppedFile);
+        activeFileInput.files = container.files;
+
+        let previewBadge = activeFileInput.parentElement.querySelector('.crop-preview-badge');
+        if (!previewBadge) {
+          previewBadge = document.createElement('div');
+          previewBadge.className = 'crop-preview-badge';
+          previewBadge.style.cssText = 'margin-top:8px; font-size:12px; color:#166534; font-weight:700; background:#f0fdf4; padding:6px 12px; border-radius:4px; border:1px solid #bbf7d0; display:inline-flex; align-items:center; gap:6px;';
+          activeFileInput.parentElement.appendChild(previewBadge);
+        }
+        previewBadge.innerHTML = '✓ Ukuran Foto Berhasil Disesuaikan (' + Math.round(canvas.width) + ' × ' + Math.round(canvas.height) + ' px)';
+
+        closeImageCropModal();
+      }, 'image/png', 0.95);
+    }
+  </script>
+
+  <!-- QUILL.JS WYSIWYG EDITOR -->
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <script>
+    let articleQuill = null;
+    let pageQuill = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const toolbarOptions = [
+        [{ 'header': [1, 2, 3, false] }, { 'font': [] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        [{ 'indent': '-1'}, { 'indent': '+1' }],
+        ['blockquote', 'code-block', 'link'],
+        ['clean']
+      ];
+
+      // Article Quill Editor
+      const articleContainer = document.getElementById('articleQuillEditor');
+      if (articleContainer) {
+        articleQuill = new Quill('#articleQuillEditor', {
+          theme: 'snow',
+          placeholder: 'Tulis isi artikel lengkap di sini secara visual...',
+          modules: { toolbar: toolbarOptions }
+        });
+
+        articleQuill.on('text-change', () => {
+          document.getElementById('articleContent').value = articleQuill.root.innerHTML;
+        });
+      }
+
+      // Page Quill Editor
+      const pageContainer = document.getElementById('pageQuillEditor');
+      if (pageContainer) {
+        pageQuill = new Quill('#pageQuillEditor', {
+          theme: 'snow',
+          placeholder: 'Tulis konten halaman di sini secara visual...',
+          modules: { toolbar: toolbarOptions }
+        });
+
+        pageQuill.on('text-change', () => {
+          document.getElementById('pageContentInput').value = pageQuill.root.innerHTML;
+        });
+
+        // Load initial active page
+        const selectElem = document.querySelector('select[name="slug"]');
+        if (selectElem) {
+          loadPageContent(selectElem.value || 'about');
+        }
+      }
+    });
+
+    // Sync on form submit
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', () => {
+        if (articleQuill && document.getElementById('articleContent')) {
+          document.getElementById('articleContent').value = articleQuill.root.innerHTML;
+        }
+        if (pageQuill && document.getElementById('pageContentInput')) {
+          document.getElementById('pageContentInput').value = pageQuill.root.innerHTML;
+        }
+      });
+    });
+  </script>
+
+  <!-- CONFIRM SAVE MODAL -->
+  <div id="confirmSaveModal" style="display:none;" class="modal-backdrop-blur">
+    <div style="background: linear-gradient(145deg, #172133, #111826); width: 90%; max-width: 480px; border-radius: 24px; padding: 32px 28px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.85), inset 1px 1px 1px rgba(255,255,255,0.15); text-align: center; position: relative;">
+      
+      <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(145deg, #182337, #0f1624); border: 1px solid rgba(238,77,45,0.4); box-shadow: inset 3px 3px 6px #080d16, inset -3px -3px 6px #1d2c46, 0 0 20px rgba(238,77,45,0.25); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ee4d2d" stroke-width="2" style="width:28px;height:28px;"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      </div>
+
+      <h3 style="font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; color:#fff; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Konfirmasi Perubahan</h3>
+      <p style="font-size:13.5px; color:#cbd5e1; line-height:1.5; margin-bottom:28px;" id="confirmSaveDetails">
+        Apakah Anda yakin sudah fix dan ingin menyimpan perubahan data ini?
+      </p>
+
+      <div style="display:flex; gap:12px;">
+        <button type="button" onclick="cancelSaveAction()" class="btn btn-outline" style="flex:1; justify-content:center; font-size:11px; padding:12px;">
+          ✏️ Belum (Lanjut Edit)
+        </button>
+        <button type="button" onclick="executeSaveAction()" class="btn btn-primary" style="flex:1; justify-content:center; font-size:11px; padding:12px;">
+          ✓ Ya, Simpan Perubahan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANIMATED CHECKMARK SUCCESS MODAL -->
+  <div id="successCheckModal" style="display:none;" class="modal-backdrop-blur">
+    <div style="background: linear-gradient(145deg, #172133, #111826); width: 90%; max-width: 440px; border-radius: 24px; padding: 36px 28px; border: 1px solid rgba(52, 211, 153, 0.35); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.85), 0 0 35px rgba(52, 211, 153, 0.25); text-align: center; position: relative;">
+      
+      <div style="width: 80px; height: 80px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+        <svg class="checkmark-svg" viewBox="0 0 52 52" style="width:72px; height:72px;">
+          <circle class="checkmark-circle" cx="26" cy="26" r="23"/>
+          <path class="checkmark-check" fill="none" stroke-width="3.5" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+      </div>
+
+      <h3 style="font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:800; color:#34d399; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;" id="successModalTitle">Berhasil Disimpan!</h3>
+      <p style="font-size:13.5px; color:#e2e8f0; line-height:1.5; margin-bottom:20px;" id="successModalMessage">
+        Data dan perubahan berhasil tersimpan ke sistem database.
+      </p>
+
+      <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+        <div id="successProgressBar" style="width: 100%; height: 100%; background: #34d399; transition: width 1.5s linear;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let targetPendingForm = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Intercept all form submissions in admin panel
+      document.querySelectorAll('form').forEach(form => {
+        if (form.action.includes('/admin/logout') || form.getAttribute('on-submit-no-modal') === 'true') return;
+
+        form.addEventListener('submit', function(e) {
+          if (this.dataset.confirmed === 'true') {
+            return true;
+          }
+
+          e.preventDefault();
+          targetPendingForm = this;
+
+          let formSectionName = 'data halaman';
+          const cardHeader = this.closest('.admin-card')?.querySelector('h3, h1, .admin-title');
+          const submitBtn = this.querySelector('button[type="submit"]');
+
+          if (cardHeader && cardHeader.textContent.trim()) {
+            formSectionName = '"' + cardHeader.textContent.trim().replace(/^Form\s+/i, '') + '"';
+          } else if (submitBtn && submitBtn.textContent.trim()) {
+            formSectionName = '"' + submitBtn.textContent.trim() + '"';
+          }
+
+          document.getElementById('confirmSaveDetails').innerHTML = 
+            'Apakah Anda yakin sudah fix dan ingin menyimpan perubahan pada <strong>' + formSectionName + '</strong>?';
+
+          document.getElementById('confirmSaveModal').style.display = 'flex';
+        });
+      });
+
+      // Trigger success animation if redirected with flash message
+      @if(session('success'))
+        showSuccessCheckmarkModal("{{ session('success') }}");
+      @endif
+    });
+
+    function cancelSaveAction() {
+      document.getElementById('confirmSaveModal').style.display = 'none';
+      targetPendingForm = null;
+    }
+
+    function executeSaveAction() {
+      if (!targetPendingForm) return;
+
+      document.getElementById('confirmSaveModal').style.display = 'none';
+
+      // Sync Quill textareas before submit
+      if (typeof articleQuill !== 'undefined' && articleQuill && document.getElementById('articleContent')) {
+        document.getElementById('articleContent').value = articleQuill.root.innerHTML;
+      }
+      if (typeof pageQuill !== 'undefined' && pageQuill && document.getElementById('pageContentInput')) {
+        document.getElementById('pageContentInput').value = pageQuill.root.innerHTML;
+      }
+
+      // Show Animated Checkmark
+      document.getElementById('successModalTitle').textContent = 'Perubahan Tersimpan!';
+      document.getElementById('successModalMessage').textContent = 'Memproses dan memperbarui data di sistem...';
+      document.getElementById('successCheckModal').style.display = 'flex';
+
+      setTimeout(() => {
+        const progressBar = document.getElementById('successProgressBar');
+        if (progressBar) progressBar.style.width = '0%';
+      }, 50);
+
+      setTimeout(() => {
+        targetPendingForm.dataset.confirmed = 'true';
+        targetPendingForm.submit();
+      }, 850);
+    }
+
+    function showSuccessCheckmarkModal(msg) {
+      const modal = document.getElementById('successCheckModal');
+      if (!modal) return;
+      document.getElementById('successModalTitle').textContent = '✓ Berhasil Disimpan!';
+      document.getElementById('successModalMessage').textContent = msg || 'Data telah berhasil diperbarui di sistem.';
+      modal.style.display = 'flex';
+
+      setTimeout(() => {
+        const progressBar = document.getElementById('successProgressBar');
+        if (progressBar) progressBar.style.width = '0%';
+      }, 50);
+
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 2400);
     }
   </script>
 </body>

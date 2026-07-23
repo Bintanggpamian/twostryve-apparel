@@ -135,7 +135,7 @@
                 </div>
 
                 @if($products->count() > 0)
-                    <div class="product-grid">
+                    <div class="product-grid stagger-children">
                         @foreach($products as $product)
                             @include('partials.product-card', ['product' => $product])
                         @endforeach

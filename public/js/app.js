@@ -21,17 +21,48 @@ if (mobileMenuBtn && mobileNav) {
     });
 }
 
-// ============= HEADER SCROLL =============
+// ============= HEADER & BACK TO TOP SCROLL OPTIMIZATION =============
 let lastScroll = 0;
-window.addEventListener('scroll', () => {
-    const header = document.getElementById('siteHeader');
-    if (!header) return;
+let isScrolling = false;
+
+function handleOptimizedScroll() {
     const st = window.scrollY;
-    header.classList.toggle('scrolled', st > 50);
-    if (st > lastScroll && st > 200) header.classList.add('hide');
-    else header.classList.remove('hide');
-    lastScroll = st;
-});
+    const header = document.getElementById('siteHeader');
+    const backToTopBtn = document.getElementById('backToTop');
+    const scrollProgress = document.getElementById('scrollProgress');
+
+    // Update Scroll Progress Bar
+    if (scrollProgress) {
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? (st / docHeight) * 100 : 0;
+        scrollProgress.style.width = progress + '%';
+    }
+
+    if (header) {
+        header.classList.toggle('scrolled', st > 50);
+        if (Math.abs(st - lastScroll) > 10) {
+            if (st > lastScroll && st > 200) {
+                header.classList.add('hide');
+            } else {
+                header.classList.remove('hide');
+            }
+            lastScroll = st;
+        }
+    }
+
+    if (backToTopBtn) {
+        backToTopBtn.classList.toggle('show', st > 500);
+    }
+
+    isScrolling = false;
+}
+
+window.addEventListener('scroll', () => {
+    if (!isScrolling) {
+        window.requestAnimationFrame(handleOptimizedScroll);
+        isScrolling = true;
+    }
+}, { passive: true });
 
 // ============= HERO BANNER SLIDER =============
 let heroIdx = 0;
@@ -141,12 +172,9 @@ if (searchInput) {
     });
 }
 
-// ============= BACK TO TOP =============
+// ============= BACK TO TOP CLICK =============
 const backToTopBtn = document.getElementById('backToTop');
 if (backToTopBtn) {
-    window.addEventListener('scroll', () => {
-        backToTopBtn.classList.toggle('show', window.scrollY > 600);
-    });
     backToTopBtn.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
@@ -180,11 +208,26 @@ function openLightbox(src) {
     document.body.appendChild(overlay);
 }
 
-// ============= SCROLL REVEAL =============
+// ============= ENHANCED SCROLL REVEAL =============
 const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); revealObserver.unobserve(e.target); }});
-}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            e.target.classList.add('revealed');
+            revealObserver.unobserve(e.target);
+        }
+    });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+function initScrollReveals() {
+    const selectors = '.reveal, .reveal-up, .reveal-left, .reveal-right, .reveal-zoom, .stagger-children';
+    document.querySelectorAll(selectors).forEach(el => revealObserver.observe(el));
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrollReveals);
+} else {
+    initScrollReveals();
+}
 
 // ============= 2-STAGE FLY TO CART ANIMATION =============
 function flyToCart(sourceElem, imgSrc) {
